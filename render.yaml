@@ -1,7 +1,6 @@
 databases:
   - name: outpass_db
     databaseName: outpass_db
-    user: postgres
 
 services:
   - type: web
