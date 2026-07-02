@@ -1,11 +1,13 @@
 databases:
   - name: outpass_db
     databaseName: outpass_db
+    plan: free
 
 services:
   - type: web
     name: student_outpass_system
     env: python
+    plan: free
     buildCommand: "./build.sh"
     startCommand: "gunicorn core.wsgi:application"
     envVars:
