@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Students - Outpass System{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <!-- Student Registration Form -->
+    <section class="card form-section">
+        <h2 id="form-title"><i class="fas fa-user-plus"></i> Register New Student</h2>
+        <form id="student-form">
+            <input type="hidden" id="form-mode" value="create">
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="reg-scholar-id">Scholar ID *</label>
+                    <input type="text" id="reg-scholar-id" required placeholder="e.g. 230101001">
+                </div>
+                <div class="form-group">
+                    <label for="reg-name">Student Name *</label>
+                    <input type="text" id="reg-name" required placeholder="Full Name">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="reg-mobile">Mobile Number *</label>
+                    <input type="text" id="reg-mobile" required placeholder="10-digit number">
+                </div>
+                <div class="form-group">
+                    <label for="reg-course">Course *</label>
+                    <input type="text" id="reg-course" required placeholder="e.g. B.Tech CSE">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="reg-semester">Semester *</label>
+                    <input type="number" id="reg-semester" required min="1" max="10" placeholder="e.g. 5" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:6px;">
+                </div>
+                <div class="form-group">
+                    <label for="reg-hostel">Hostel Name *</label>
+                    <input type="text" id="reg-hostel" required placeholder="e.g. Boys Hostel A">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="reg-room">Room Number *</label>
+                    <input type="text" id="reg-room" required placeholder="e.g. 101">
+                </div>
+                <div class="form-group">
+                    <label for="reg-purpose">Default Purpose</label>
+                    <input type="text" id="reg-purpose" placeholder="e.g. Going Home">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="reg-destination">Default Destination</label>
+                    <input type="text" id="reg-destination" placeholder="e.g. Delhi">
+                </div>
+            </div>
+
+            <div class="form-actions" style="display: flex; gap: 10px;">
+                <button type="button" id="btn-cancel-edit" class="btn btn-secondary hidden">Cancel Edit</button>
+                <button type="submit" id="btn-save-student" class="btn btn-primary" style="flex: 1;">
+                    <span class="btn-text">Save Student</span>
+                    <div class="spinner hidden"><i class="fas fa-spinner fa-spin"></i></div>
+                </button>
+            </div>
+            <div id="student-form-message"></div>
+        </form>
+    </section>
+
+    <!-- Students Table Section -->
+    <section class="card table-section">
+        <div class="table-header">
+            <h2><i class="fas fa-users"></i> Registered Students</h2>
+            <div class="table-controls">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="student-search" placeholder="Search Scholar ID or Name...">
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table id="students-table">
+                <thead>
+                    <tr>
+                        <th>Scholar ID</th>
+                        <th>Name</th>
+                        <th>Mobile</th>
+                        <th>Course</th>
+                        <th>Sem</th>
+                        <th>Hostel</th>
+                        <th>Room</th>
+                        <th>Purpose</th>
+                        <th>Destination</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.scholar_id }}</td>
+                        <td>{{ student.student_name }}</td>
+                        <td>{{ student.mobile_number }}</td>
+                        <td>{{ student.course }}</td>
+                        <td>{{ student.semester }}</td>
+                        <td>{{ student.hostel_name }}</td>
+                        <td>{{ student.room_number }}</td>
+                        <td>{{ student.purpose }}</td>
+                        <td>{{ student.destination }}</td>
+                        <td>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn-action edit-student-btn" data-id="{{ student.scholar_id }}" data-name="{{ student.student_name }}" data-mobile="{{ student.mobile_number }}" data-course="{{ student.course }}" data-semester="{{ student.semester }}" data-hostel="{{ student.hostel_name }}" data-room="{{ student.room_number }}" data-purpose="{{ student.purpose }}" data-destination="{{ student.destination }}" title="Edit"><i class="fas fa-edit" style="color: var(--primary-color);"></i> <span class="mobile-hide">Edit</span></button>
+                                <button class="btn-action delete-student-btn mobile-hide row-action-{{ student.scholar_id }}" data-id="{{ student.scholar_id }}" title="Delete"><i class="fas fa-trash" style="color: var(--danger);"></i> Delete</button>
+                                <button class="btn-action mobile-only btn-more-actions" data-targets=".row-action-{{ student.scholar_id }}"><i class="fas fa-ellipsis-v"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="10" class="text-center">No students registered yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

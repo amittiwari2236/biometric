@@ -1,0 +1,182 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student Outpass System{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'CSS/styles.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <div class="layout-container">
+        <!-- Mobile Overlay -->
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                <h2>Gate Outpass</h2>
+                <button class="btn-close-sidebar" id="btn-close-sidebar" style="background: none; border: none; font-size: 1.25rem; color: var(--text-muted); cursor: pointer; padding: 4px;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <nav class="sidebar-nav">
+                {% if request.session.role == 'Gatekeeper' %}
+                <a href="{% url 'gatekeeper_dashboard' %}"
+                    class="nav-item {% if request.resolver_match.url_name == 'gatekeeper_dashboard' %}active{% endif %}">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-qrcode"></i> Scan Outpass
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-sign-in-alt"></i> Entry Register
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-sign-out-alt"></i> Exit Register
+                </a>
+
+                {% elif request.session.role == 'Super Admin' %}
+                <a href="{% url 'superadmin_dashboard' %}"
+                    class="nav-item {% if request.resolver_match.url_name == 'superadmin_dashboard' %}active{% endif %}">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+                <a href="{% url 'students' %}"
+                    class="nav-item {% if request.resolver_match.url_name == 'students' %}active{% endif %}">
+                    <i class="fas fa-user-graduate"></i> Manage Students
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-user-shield"></i> Manage Roles
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-file-alt"></i> System Reports
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-cog"></i> System Settings
+                </a>
+
+                {% else %}
+                <!-- Admin (Default) -->
+                <a href="{% url 'dashboard' %}"
+                    class="nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+                <a href="{% url 'history' %}"
+                    class="nav-item {% if request.resolver_match.url_name == 'history' %}active{% endif %}">
+                    <i class="fas fa-history"></i> History
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-file-signature"></i> Outpass Requests
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-check-circle"></i> Approved Requests
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-times-circle"></i> Rejected Requests
+                </a>
+                <a href="{% url 'students' %}"
+                    class="nav-item {% if request.resolver_match.url_name == 'students' %}active{% endif %}">
+                    <i class="fas fa-user-graduate"></i> Students
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-file-alt"></i> Reports
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+                {% endif %}
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="top-header">
+                <div class="header-title" style="display: flex; align-items: center; gap: 12px;">
+                    <button class="btn-mobile-menu" id="btn-mobile-menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <img src="{% static 'images/dsvv_logo.jpg' %}" alt="DSVV Logo" class="top-header-logo">
+                    <h1 class="desktop-only-title" style="font-size: 1.25rem; font-weight: 600; margin: 0; white-space: nowrap;">Outing System</h1>
+                </div>
+                <div class="header-profile" style="position: relative;">
+                    <div class="account-switcher" id="account-switcher-btn">
+                        <div class="profile-info">
+                            <span class="admin-name">{{ request.user.username|title }}</span>
+                            <span class="admin-role">{{ request.session.role|default:"Admin" }}</span>
+                        </div>
+                        <div class="profile-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <i class="fas fa-chevron-down header-chevron" style="font-size: 0.8rem; margin-left: 8px;"></i>
+                    </div>
+                    
+                    <!-- Dropdown Menu -->
+                    <div class="account-dropdown hidden" id="account-dropdown">
+                        <div class="dropdown-header">Switch Account</div>
+                        <a href="{% url 'logout' %}?role=Admin" class="dropdown-item {% if request.session.role == 'Admin' %}active{% endif %}">
+                            <i class="fas fa-user-tie"></i> Admin
+                        </a>
+                        <a href="{% url 'logout' %}?role=Super%20Admin" class="dropdown-item {% if request.session.role == 'Super Admin' %}active{% endif %}">
+                            <i class="fas fa-user-shield"></i> Super Admin
+                        </a>
+                        <a href="{% url 'logout' %}?role=Gatekeeper" class="dropdown-item {% if request.session.role == 'Gatekeeper' %}active{% endif %}">
+                            <i class="fas fa-id-badge"></i> Gatekeeper
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="{% url 'logout' %}" class="dropdown-item text-danger">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content-body">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <!-- Global Bottom Sheet -->
+    <div class="bottom-sheet-overlay" id="bottom-sheet-overlay"></div>
+    <div class="bottom-sheet" id="bottom-sheet">
+        <div class="bottom-sheet-header">
+            <h3 id="bottom-sheet-title">More Actions</h3>
+            <button class="btn-close-sheet" id="btn-close-sheet"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="bottom-sheet-content" id="bottom-sheet-content"></div>
+    </div>
+
+    <!-- CSRF Token for JavaScript -->
+    <script>
+        window.CSRF_TOKEN = "{{ csrf_token }}";
+        
+        // Account switcher logic
+        document.addEventListener('DOMContentLoaded', () => {
+            const switcherBtn = document.getElementById('account-switcher-btn');
+            const dropdown = document.getElementById('account-dropdown');
+            
+            if (switcherBtn && dropdown) {
+                switcherBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    dropdown.classList.toggle('hidden');
+                });
+                
+                document.addEventListener('click', (e) => {
+                    if (!switcherBtn.contains(e.target) && !dropdown.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
+    <script src="{% static 'JavaScript/main.js' %}?v={{ request.session.session_key|default:'1' }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

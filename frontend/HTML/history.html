@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}History - Outpass System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .history-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .filter-group {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+    .filter-group select {
+        padding: 8px 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-family: 'Inter', sans-serif;
+    }
+    .action-group {
+        display: flex;
+        gap: 10px;
+    }
+    .checkbox-cell {
+        width: 40px;
+        text-align: center;
+    }
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    .status-Approved { background-color: #d1fae5; color: #065f46; }
+    .status-Pending { background-color: #fef3c7; color: #92400e; }
+    .status-Rejected { background-color: #fee2e2; color: #991b1b; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="card table-section" style="margin-top: 0;">
+    <div class="table-header" style="flex-direction: column; align-items: stretch; gap: 15px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2><i class="fas fa-history"></i> Outing History</h2>
+            <div class="action-group mobile-hide" id="hist-downloads">
+                <button id="btn-download-selected" class="btn btn-secondary">
+                    <i class="fas fa-file-pdf"></i> Download Selected
+                </button>
+                <button id="btn-download-all" class="btn btn-primary">
+                    <i class="fas fa-file-pdf"></i> Download All
+                </button>
+            </div>
+        </div>
+        
+        <div class="history-controls">
+            <div class="filter-group" style="width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+                <div class="search-box" style="flex: 1;">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="history-search" placeholder="Search ID, Name or Destination..." style="width: 100%;">
+                </div>
+                <select id="status-filter" class="mobile-hide">
+                    <option value="All">All Statuses</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+                <button class="btn btn-secondary mobile-only btn-more-actions" data-targets="#status-filter, #hist-downloads" style="padding: 10px;">
+                    <i class="fas fa-ellipsis-v"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table id="history-table">
+            <thead>
+                <tr>
+                    <th class="checkbox-cell"><input type="checkbox" id="select-all"></th>
+                    <th>Scholar ID</th>
+                    <th>Name</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Purpose</th>
+                    <th>Destination</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="history-tbody">
+                <tr><td colspan="9" class="text-center">Loading history...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Student History Modal -->
+<div id="student-history-modal" class="modal-overlay hidden">
+    <div class="modal-glass" style="max-width: 800px; width: 95%;">
+        <div class="modal-header">
+            <h3><i class="fas fa-history"></i> <span id="modal-student-name">Student</span>'s Outing History</h3>
+            <button class="btn-close-modal" id="btn-close-history-modal"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+            <div class="history-summary">
+                <div class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+                    <div class="stat-details">
+                        <h3>Total Requests</h3>
+                        <div class="counter" id="modal-total-requests">0</div>
+                    </div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-details">
+                        <h3>Approved</h3>
+                        <div class="counter" id="modal-approved">0</div>
+                    </div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+                    <div class="stat-details">
+                        <h3>Rejected</h3>
+                        <div class="counter" id="modal-rejected">0</div>
+                    </div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                    <div class="stat-details">
+                        <h3>Pending</h3>
+                        <div class="counter" id="modal-pending">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="history-table" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Purpose</th>
+                            <th>Destination</th>
+                            <th>Status</th>
+                            <th>Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modal-history-tbody">
+                        <tr><td colspan="6" class="text-center">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" id="btn-close-history-modal-footer">Close</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include jsPDF and AutoTable -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<script src="{% static 'JavaScript/history.js' %}"></script>
+{% endblock %}
